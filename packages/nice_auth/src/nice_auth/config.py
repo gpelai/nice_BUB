@@ -10,6 +10,14 @@ class NiceConfig():
         self.access_key_id = os.getenv("NICE_ACCESS_KEY_ID")
         self.access_key_secret = os.getenv("NICE_ACCESS_KEY_SECRET")
 
+        if not all([
+            self.client_id,
+            self.client_secret,
+            self.access_key_id,
+            self.access_key_secret
+        ]):
+            raise ValueError("NICE Credencials incomplete")
+
 
 
     def get_credentials(self):
