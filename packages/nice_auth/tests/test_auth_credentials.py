@@ -8,3 +8,4 @@ client = NiceClient(client_id, client_secret, access_key_id, access_key_secret)
 
 access_token = client.get_accessToken()
 
+print(access_token)
