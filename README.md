@@ -1,203 +1,143 @@
-# nice_BUB — NICE Batman Utility Belt 🦇
+# NICE BUB — Batman Utility Belt
 
-A personal, modular Python toolkit for building and organizing integrations, automations, and reporting solutions for **NICE CXone**.
+**NICE BUB** (*Batman Utility Belt*) é um monorepo pessoal de ferramentas e componentes reutilizáveis para desenvolver soluções e automações integradas ao **NICE CXone**.
 
-The project follows a **monorepo** approach: reusable libraries live in `packages/`, while executable solutions live in `apps/`. Each application may maintain its own dependencies, data folders, and documentation.
+A ideia é simples: manter várias ferramentas em um único repositório, como um *cinto de utilidades*, sem misturar as regras de negócio de cada aplicação com funcionalidades que podem ser compartilhadas.
 
-> **Project status:** Early development. The repository currently contains a working authentication package and a skill reporting application, plus a placeholder package for future NICE API utilities.
+## Como o projeto é organizado
 
-## Current modules
+O BUB separa o código em dois grupos:
 
-| Component | Location | Purpose | Status |
-| --- | --- | --- | --- |
-| **nice_auth** | [`packages/nice_auth/`](packages/nice_auth/) | Loads NICE credentials from environment variables and requests an access token. | Implemented |
-| **skillReport** | [`apps/skillReport/`](apps/skillReport/) | Queries NICE skill summaries by date range and exports selected metrics to Excel. | Implemented (basic workflow) |
-| **nice_api** | [`packages/nice_api/`](packages/nice_api/) | Reserved for shared NICE API utilities. | Scaffold only; no public functionality yet |
-
-For detailed input format, configuration, API endpoint, output columns, and troubleshooting, see **[skillReport documentation](apps/skillReport/README.md)**.
-
-## Repository layout
+| Diretório | Papel | Como utilizar |
+| --- | --- | --- |
+| `packages/` | Bibliotecas reutilizáveis, como autenticação e clientes de API | Instale no ambiente Python e importe nos apps |
+| `apps/` | Aplicações independentes para necessidades específicas | Consulte o README do app e execute seu ponto de entrada |
 
 ```text
 nice_BUB/
-├── .env.example                    # Environment variable template
-├── .gitignore
-├── README.md                       # This guide
+├── apps/
+│   └── skillReport/
+│       ├── README.md          # Instruções específicas do app
+│       ├── pyproject.toml     # Dependências do app
+│       ├── main.py            # Ponto de entrada
+│       ├── client.py
+│       ├── excel.py
+│       └── data/
+│           ├── input/
+│           └── output/
 ├── packages/
 │   ├── nice_auth/
 │   │   ├── pyproject.toml
 │   │   ├── src/nice_auth/
-│   │   │   ├── __init__.py
-│   │   │   ├── config.py           # NiceConfig
-│   │   │   └── client.py           # NiceClient
-│   │   └── tests/test_config.py
+│   │   └── tests/
 │   └── nice_api/
-│       ├── pyproject.toml          # Currently empty
-│       └── src/nice_api/__init__.py
-└── apps/
-    ├── __init__.py
-    └── skillReport/
-        ├── README.md
-        ├── pyproject.toml
-        ├── main.py
-        ├── client.py
-        ├── excel.py
-        └── data/
-            ├── input/.gitkeep
-            └── output/.gitkeep
+│       ├── pyproject.toml
+│       └── src/nice_api/
+├── .env.example
+├── .gitignore
+└── README.md
 ```
 
-## Getting started (Windows / PowerShell)
+> A árvore destaca os componentes principais. Cada app ou package pode evoluir com seus próprios testes, módulos e documentação.
 
-### 1. Clone the repository
+## Componentes atuais
+
+### Packages
+
+- **`nice_auth`** — pacote compartilhado para ler credenciais do ambiente e solicitar um token de acesso ao NICE CXone.
+- **`nice_api`** — estrutura inicial destinada a futuras funcionalidades reutilizáveis de integração com APIs NICE; ainda não possui uma implementação funcional documentada.
+
+### Apps
+
+| Aplicação | Objetivo | Documentação |
+| --- | --- | --- |
+| **SkillReport** | Consulta resumos de skills no NICE CXone e exporta os resultados para Excel | [README do SkillReport](apps/skillReport/README.md) |
+
+**Regra de documentação:** o README da raiz apresenta o BUB. Configuração, parâmetros, formatos de entrada e saída, exemplos e limitações de cada ferramenta pertencem ao **README do próprio app**.
+
+## Como começar
+
+Os exemplos abaixo usam **PowerShell no Windows** e devem ser executados na raiz do repositório.
+
+**1. Clone o projeto e entre na pasta:**
 
 ```powershell
 git clone https://github.com/gpelai/nice_BUB.git
 cd nice_BUB
 ```
 
-### 2. Create and activate a virtual environment
-
-Use **Python 3.11 or newer** (required by `nice_auth`).
+**2. Crie e ative um ambiente virtual** (utilize Python **3.11 ou superior**, exigido pelo `nice_auth`):
 
 ```powershell
-py -3.11 -m venv .venv
+python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
 ```
 
-If you already have a compatible Python selected, you can use `python -m venv .venv` instead.
-
-### 3. Install the shared authentication package and application dependencies
-
-Run these commands **from the repository root**:
+**3. Instale os packages compartilhados necessários:**
 
 ```powershell
 python -m pip install -e ./packages/nice_auth
-python -m pip install ./apps/skillReport
-python -m pip install python-dotenv
+python -m pip install httpx python-dotenv
 ```
 
-Why three commands?
+> Atualmente, o `pyproject.toml` de `nice_auth` não declara suas dependências de execução (`httpx` e `python-dotenv`), por isso elas são instaladas explicitamente acima. O diretório `nice_api` é apenas uma estrutura inicial e não precisa ser instalado para executar o SkillReport.
 
-- `nice_auth` is an installable package using a `src/` layout. An editable install makes its imports available while developing.
-- `skillReport` declares `httpx`, `pandas`, and `openpyxl` in its own `pyproject.toml`. Its configuration currently installs dependencies/metadata only, **not** `apps.skillReport` as an importable distribution.
-- `nice_auth` imports `dotenv`, but its current `pyproject.toml` does **not** declare `python-dotenv`; install it explicitly until that packaging metadata is updated.
-
-The repository currently has **no root-level dependency manifest**, so there is not yet a single command that installs every project component.
-
-### 4. Configure NICE credentials
-
-Copy the environment template:
+**4. Configure as credenciais da NICE:**
 
 ```powershell
 Copy-Item .env.example .env
 ```
 
-Edit `.env` and supply the values for:
+Preencha as variáveis no `.env` local:
 
 ```dotenv
-NICE_CLIENT_ID="your-client-id"
-NICE_CLIENT_SECRET="your-client-secret"
-NICE_ACCESS_KEY_ID="your-access-key-id"
-NICE_ACCESS_KEY_SECRET="your-access-key-secret"
+NICE_CLIENT_ID=""
+NICE_CLIENT_SECRET=""
+NICE_ACCESS_KEY_ID=""
+NICE_ACCESS_KEY_SECRET=""
 ```
 
-`NiceConfig` reads these through `python-dotenv` and raises an error if any are missing.
+Nunca inclua credenciais, tokens ou dados operacionais nos commits. O arquivo `.env` é ignorado pelo Git.
 
-**Security:** never commit `.env`, access tokens, or operational/customer data. The `.env` file is excluded by `.gitignore`. Credentials must have the API permissions required for the intended action.
+## Como usar os apps
 
-## Using the modules
+Cada app define suas próprias dependências e procedimentos. O fluxo geral é:
 
-### `nice_auth` — shared authentication
+1. Instalar os packages compartilhados de que ele depende.
+2. Instalar as dependências declaradas no `pyproject.toml` do app, quando houver.
+3. Seguir as configurações descritas no README do app.
+4. Executar o módulo pela **raiz do repositório**, preservando os imports de `apps` e dos packages instalados.
 
-The package exposes two classes:
+**Exemplo — SkillReport:**
 
-- `NiceConfig`: reads and validates the four environment variables above.
-- `NiceClient`: uses those credentials to request an access token from the NICE authentication endpoint.
+```powershell
+python -m pip install ./apps/skillReport
+python -m apps.skillReport.main
+```
 
-Example (from the repository root, after installation and `.env` setup):
+Para preparar o arquivo de entrada, configurar o período consultado e entender o relatório gerado, consulte o [README do SkillReport](apps/skillReport/README.md).
+
+> O `pyproject.toml` do SkillReport declara suas dependências, mas não instala seus módulos como pacote independente; por isso, sua execução continua sendo feita a partir da raiz do monorepo.
+
+## Como utilizar os packages
+
+Um package reúne funcionalidades comuns, evitando copiar autenticação, clientes HTTP ou outras rotinas entre aplicações. Depois de instalado no ambiente virtual, seus módulos podem ser importados normalmente:
 
 ```python
 from nice_auth.config import NiceConfig
 from nice_auth.client import NiceClient
-
-config = NiceConfig()
-client = NiceClient(
-    client_id=config.client_id,
-    client_secret=config.client_secret,
-    access_key_id=config.access_key_id,
-    access_key_secret=config.access_key_secret,
-)
-access_token = client.get_accessToken()
 ```
 
-**Current limitation:** token retrieval does not yet provide robust HTTP error handling or token refresh management. Validate that a token was returned before using it for other API requests.
+O app é responsável por combinar esses componentes de acordo com sua necessidade. Código genérico e reaproveitável deve ficar em `packages/`; regras e operações específicas de uma ferramenta devem ficar dentro do respectivo diretório em `apps/`.
 
-### `skillReport` — Excel skill summary reports
+## Como adicionar uma nova ferramenta
 
-**Input:** Create `apps/skillReport/data/input/skillid_list.xlsx` with a column named exactly `skills_id` containing numeric skill IDs.
-
-Example:
-
-| skills_id |
-| ---: |
-| 31517161 |
-| 18595741 |
-
-**Date range:** Adjust `mon_name`, `start_date`, and `end_date` at the beginning of `apps/skillReport/main.py`. The month label only names the output file; it does not set the dates automatically.
-
-**Run from the repository root:**
-
-```powershell
-python -m apps.skillReport.main
-```
-
-**Output:** `apps/skillReport/data/output/skillReport_<month>.xlsx`, containing `skillName`, `contactsOffered`, `contactsQueued`, and `contactsHandled` for the successfully retrieved summaries.
-
-**Current limitations:** sequential requests; no automatic retry, individual failure recovery, or partial export. An HTTP error or empty `skillSummaries` may interrupt execution before writing the Excel file. A same-named output file is overwritten.
-
-Full guide: **[apps/skillReport/README.md](apps/skillReport/README.md)**.
-
-### `nice_api` — planned shared utilities
-
-The `packages/nice_api/` directory exists as an initial scaffold, but its `pyproject.toml` and module initializer are currently empty. It is **not yet a usable client library**. Add utilities here as the shared abstraction becomes necessary; do not assume it is installable or functional today.
-
-## Tests
-
-A credential configuration test suite exists at `packages/nice_auth/tests/test_config.py`.
-
-To run it, first install the test runner:
-
-```powershell
-python -m pip install pytest
-python -m pytest packages/nice_auth/tests
-```
-
-This covers environment-variable configuration, **not** live NICE authentication or the skill reporting workflow.
-
-## Working with the monorepo
-
-- **Shared integrations and utilities:** place reusable code in `packages/` and define its packaging metadata/dependencies.
-- **Independent tasks and business tools:** place executable applications in `apps/`; include a dedicated README and, where useful, a `pyproject.toml`.
-- **Execution:** for modules under `apps/`, launch with `python -m apps.<app_name>.main` from the repository root when absolute imports rely on that layout.
-- **Data:** keep generated reports, input spreadsheets, credentials, and sensitive data outside Git. The skill report preserves empty `data/input` and `data/output` directories using `.gitkeep`.
-- **Delivery:** work on feature branches, open an issue, reference it in the pull request (`Closes #N`), and merge after reviewing changes.
-
-## Roadmap ideas (not implemented)
-
-- Centralized authentication lifecycle, including refresh/retry logic.
-- Standard reusable HTTP clients, pagination, error handling, and throttling.
-- Per-skill error tracking and resumable/partial exports.
-- Automated tests for API clients and Excel operations.
-- A root workspace/dependency strategy as more applications are added.
-
-## Links
-
-- [GitHub repository](https://github.com/gpelai/nice_BUB)
-- [SkillReport documentation](apps/skillReport/README.md)
-- [NICE CXone Developer Portal](https://developer.niceincontact.com/API)
+- Crie `apps/nomeDoApp/` com ponto de entrada, dependências e **README próprio**.
+- Reutilize os packages existentes em vez de duplicar funções compartilhadas.
+- Se surgir uma funcionalidade que faça sentido para vários apps, considere extraí-la para `packages/`.
+- Não versione credenciais, planilhas de operação ou arquivos gerados.
+- Organize mudanças com branches, issues e pull requests.
 
 ---
 
-This README describes the repository state reviewed on **2026-10-16**. Consult each component's source and documentation for subsequent changes.
+**Princípio do BUB:** aplicações separadas, componentes compartilhados e um único lugar para encontrar suas ferramentas NICE.
