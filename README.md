@@ -1,4 +1,4 @@
-# NICE BUB — Batman Utility Belt🦇
+# NICE BUB - Batman Utility Belt🦇
 
 **NICE BUB** (*Batman Utility Belt*) é um monorepo pessoal de ferramentas e componentes reutilizáveis para desenvolver soluções e automações integradas ao **NICE CXone**.
 
