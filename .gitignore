@@ -19,3 +19,11 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+
+# SkillReport - Ignore input/output files
+/apps/skillReport/data/input/*
+/apps/skillReport/data/output/*
+
+# Keep directory structure
+!/apps/skillReport/data/input/.gitkeep
+!/apps/skillReport/data/output/.gitkeep

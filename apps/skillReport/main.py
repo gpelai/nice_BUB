@@ -3,15 +3,24 @@ from nice_auth.config import NiceConfig
 from apps.skillReport.client import SkillReportClient
 
 from pathlib import Path
-import pandas as pd
+from apps.skillReport.excel import read_skill_ids, write_report
+
+# import pandas as pd
 
 
 def main():
-    # 0. carrega lista de skill
-    file_path = Path(__file__).parent / "data" / "input" / "skillid_list.xlsx"
-    df = pd.read_excel(file_path)
-    skill_ids = df["skills_id"].dropna().astype(int).tolist()
+    # VARS
+    mon_name = "mai"
+    start_date = "2026-05-01"
+    end_date = "2026-05-31"
 
+    # PATHS
+    base_path = Path(__file__).parent
+    input_path =  base_path / "data" / "input" / "skillid_list.xlsx"
+    output_path = base_path / "data" / "output" / f"skillReport_{mon_name}.xlsx"
+
+    # # 0. carrega lista de skill
+    skill_ids = read_skill_ids(input_path)
 
     # 1. Carregar credenciais do .env
     config = NiceConfig()
@@ -31,18 +40,25 @@ def main():
     report = SkillReportClient(access_token)
 
     # 5. Executar get_summary()
+    results = []
+
     for skillid in skill_ids:
         result = report.get_summary(
             skillid,
-            "2026-10-01",
-            "2026-10-15"
+            start_date,
+            end_date
         )
+
+        print(result)
     
         # 6. Pega os dados desejados
         data = report.get_skillData(result["skillSummaries"])
 
-        # 7. Mostra os dados
-        print(data)
+        # 7. Guarda results
+        results.append(data)
+
+    # 7. Escreve excel com os dados
+    write_report(output_path, results)
 
 
 if __name__ == "__main__":

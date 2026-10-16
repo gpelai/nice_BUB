@@ -29,8 +29,13 @@ class SkillReportClient:
             url,
             headers=headers,
             params=params,
-            timeout=30
+            timeout=120
         )
+
+        if response.status_code >= 400:
+            print(f"Skill ID: {skill_id}")
+            print(f"Status: {response.status_code}")
+            print(f"Response: {response.text}")
 
         response.raise_for_status()
 
