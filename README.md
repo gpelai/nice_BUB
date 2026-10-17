@@ -1,143 +1,147 @@
-# NICE BUB - Batman Utility Belt🦇
+NICE BUB 🦇 — Automação e Integração de Operações NICE CXone
 
-**NICE BUB** (*Batman Utility Belt*) é um monorepo pessoal de ferramentas e componentes reutilizáveis para desenvolver soluções e automações integradas ao **NICE CXone**.
+Ferramentas Python para automatizar processos, consultar indicadores operacionais e desenvolver integrações reutilizáveis com a plataforma NICE CXone.
 
-A ideia é simples: manter várias ferramentas em um único repositório, como um *cinto de utilidades*, sem misturar as regras de negócio de cada aplicação com funcionalidades que podem ser compartilhadas.
+Sobre o projeto
 
-## Como o projeto é organizado
+O NICE BUB (Batman Utility Belt) é um projeto pessoal de desenvolvimento voltado à criação de ferramentas para apoiar a administração e a operação de ambientes NICE CXone.
 
-O BUB separa o código em dois grupos:
+O projeto surgiu da proposta de reunir automações e integrações em um único lugar, permitindo reutilizar componentes técnicos e desenvolver novas soluções sem começar do zero.
 
-| Diretório | Papel | Como utilizar |
-| --- | --- | --- |
-| `packages/` | Bibliotecas reutilizáveis, como autenticação e clientes de API | Instale no ambiente Python e importe nos apps |
-| `apps/` | Aplicações independentes para necessidades específicas | Consulte o README do app e execute seu ponto de entrada |
+Seu objetivo é explorar formas de reduzir atividades manuais, facilitar o acesso a informações operacionais e padronizar tarefas recorrentes.
 
-```text
+Problemas que o projeto busca resolver
+
+Em ambientes de contact center, atividades como consulta de indicadores, extração de relatórios e administração de configurações podem exigir tarefas repetitivas.
+
+O NICE BUB busca oferecer ferramentas para:
+
+* Automatizar consultas e extrações de dados do NICE CXone.
+* Consolidar informações operacionais em arquivos estruturados.
+* Reutilizar mecanismos de autenticação e comunicação com APIs.
+* Facilitar o desenvolvimento de novas automações para operações NICE.
+
+Soluções disponíveis
+
+SkillReport — Extração de indicadores de skills
+
+Ferramenta Python que consulta indicadores de múltiplas skills por meio da API NICE CXone e consolida os resultados em Excel.
+
+Como funciona:
+
+1. Recebe uma planilha contendo os identificadores das skills.
+2. Autentica na plataforma e consulta os indicadores para o período configurado.
+3. Consolida os resultados em uma planilha Excel.
+
+Indicadores disponíveis:
+
+* Nome da skill
+* Contatos oferecidos
+* Contatos enfileirados
+* Contatos atendidos
+
+Aplicação prática: apoiar análises operacionais e consultas de desempenho de múltiplas skills.
+
+Documentação do SkillReport
+
+Nice Auth — Autenticação reutilizável
+
+Componente Python para centralizar a configuração de credenciais e a obtenção de tokens de acesso às APIs NICE CXone.
+
+Benefício: permitir que diferentes ferramentas compartilhem uma implementação de autenticação, evitando duplicação de código.
+
+Nice API — Em desenvolvimento
+
+Estrutura inicial destinada à construção de componentes reutilizáveis para integração com APIs NICE.
+
+Tecnologias
+
+Tecnologia	Aplicação
+Python 3.11+	Linguagem principal e requisito do pacote de autenticação
+NICE CXone REST API	Integração com a plataforma
+HTTPX	Comunicação HTTP
+Pandas	Manipulação de dados
+OpenPyXL	Leitura e geração de arquivos Excel
+python-dotenv	Configuração de credenciais locais
+Git e GitHub	Versionamento e organização do desenvolvimento
+
+As versões e faixas de dependências específicas estão documentadas nos arquivos pyproject.toml de cada componente.
+
+Arquitetura
+
+O projeto utiliza uma estrutura modular com separação entre aplicações e componentes compartilhados.
+
 nice_BUB/
 ├── apps/
 │   └── skillReport/
-│       ├── README.md          # Instruções específicas do app
-│       ├── pyproject.toml     # Dependências do app
-│       ├── main.py            # Ponto de entrada
+│       ├── main.py
 │       ├── client.py
 │       ├── excel.py
-│       └── data/
-│           ├── input/
-│           └── output/
+│       └── README.md
 ├── packages/
 │   ├── nice_auth/
-│   │   ├── pyproject.toml
-│   │   ├── src/nice_auth/
-│   │   └── tests/
 │   └── nice_api/
-│       ├── pyproject.toml
-│       └── src/nice_api/
 ├── .env.example
-├── .gitignore
 └── README.md
-```
 
-> A árvore destaca os componentes principais. Cada app ou package pode evoluir com seus próprios testes, módulos e documentação.
+* apps/: aplicações que resolvem necessidades específicas.
+* packages/: componentes compartilhados utilizados por diferentes aplicações.
 
-## Componentes atuais
+Como executar
 
-### Packages
+Exemplo para Windows PowerShell, a partir da raiz do repositório.
 
-- **`nice_auth`** — pacote compartilhado para ler credenciais do ambiente e solicitar um token de acesso ao NICE CXone.
-- **`nice_api`** — estrutura inicial destinada a futuras funcionalidades reutilizáveis de integração com APIs NICE; ainda não possui uma implementação funcional documentada.
+1. Clone o projeto e configure o ambiente Python
 
-### Apps
-
-| Aplicação | Objetivo | Documentação |
-| --- | --- | --- |
-| **SkillReport** | Consulta resumos de skills no NICE CXone e exporta os resultados para Excel | [README do SkillReport](apps/skillReport/README.md) |
-
-**Regra de documentação:** o README da raiz apresenta o BUB. Configuração, parâmetros, formatos de entrada e saída, exemplos e limitações de cada ferramenta pertencem ao **README do próprio app**.
-
-## Como começar
-
-Os exemplos abaixo usam **PowerShell no Windows** e devem ser executados na raiz do repositório.
-
-**1. Clone o projeto e entre na pasta:**
-
-```powershell
 git clone https://github.com/gpelai/nice_BUB.git
 cd nice_BUB
-```
-
-**2. Crie e ative um ambiente virtual** (utilize Python **3.11 ou superior**, exigido pelo `nice_auth`):
-
-```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
-```
 
-**3. Instale os packages compartilhados necessários:**
+2. Instale as dependências e configure as credenciais
 
-```powershell
 python -m pip install -e ./packages/nice_auth
 python -m pip install httpx python-dotenv
-```
-
-> Atualmente, o `pyproject.toml` de `nice_auth` não declara suas dependências de execução (`httpx` e `python-dotenv`), por isso elas são instaladas explicitamente acima. O diretório `nice_api` é apenas uma estrutura inicial e não precisa ser instalado para executar o SkillReport.
-
-**4. Configure as credenciais da NICE:**
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Preencha as variáveis no `.env` local:
-
-```dotenv
-NICE_CLIENT_ID=""
-NICE_CLIENT_SECRET=""
-NICE_ACCESS_KEY_ID=""
-NICE_ACCESS_KEY_SECRET=""
-```
-
-Nunca inclua credenciais, tokens ou dados operacionais nos commits. O arquivo `.env` é ignorado pelo Git.
-
-## Como usar os apps
-
-Cada app define suas próprias dependências e procedimentos. O fluxo geral é:
-
-1. Instalar os packages compartilhados de que ele depende.
-2. Instalar as dependências declaradas no `pyproject.toml` do app, quando houver.
-3. Seguir as configurações descritas no README do app.
-4. Executar o módulo pela **raiz do repositório**, preservando os imports de `apps` e dos packages instalados.
-
-**Exemplo — SkillReport:**
-
-```powershell
 python -m pip install ./apps/skillReport
+Copy-Item .env.example .env
+
+Preencha o arquivo .env com suas credenciais NICE CXone. Nunca publique credenciais ou tokens.
+
+3. Prepare os dados e execute o SkillReport
+
+Crie o arquivo apps/skillReport/data/input/skillid_list.xlsx com uma coluna skills_id. Configure o período em main.py e execute:
+
 python -m apps.skillReport.main
-```
 
-Para preparar o arquivo de entrada, configurar o período consultado e entender o relatório gerado, consulte o [README do SkillReport](apps/skillReport/README.md).
+A aplicação gera uma planilha no diretório apps/skillReport/data/output/.
 
-> O `pyproject.toml` do SkillReport declara suas dependências, mas não instala seus módulos como pacote independente; por isso, sua execução continua sendo feita a partir da raiz do monorepo.
+Para detalhes, consulte a documentação específica do aplicativo.
 
-## Como utilizar os packages
+Estado atual e próximos passos
 
-Um package reúne funcionalidades comuns, evitando copiar autenticação, clientes HTTP ou outras rotinas entre aplicações. Depois de instalado no ambiente virtual, seus módulos podem ser importados normalmente:
+O NICE BUB está em desenvolvimento incremental.
 
-```python
-from nice_auth.config import NiceConfig
-from nice_auth.client import NiceClient
-```
+Implementado:
 
-O app é responsável por combinar esses componentes de acordo com sua necessidade. Código genérico e reaproveitável deve ficar em `packages/`; regras e operações específicas de uma ferramenta devem ficar dentro do respectivo diretório em `apps/`.
+* Componente compartilhado de autenticação.
+* Consulta de indicadores de múltiplas skills.
+* Consolidação e exportação dos resultados para Excel.
+* Organização modular de aplicações e bibliotecas.
 
-## Como adicionar uma nova ferramenta
+Evoluções planejadas:
 
-- Crie `apps/nomeDoApp/` com ponto de entrada, dependências e **README próprio**.
-- Reutilize os packages existentes em vez de duplicar funções compartilhadas.
-- Se surgir uma funcionalidade que faça sentido para vários apps, considere extraí-la para `packages/`.
-- Não versione credenciais, planilhas de operação ou arquivos gerados.
-- Organize mudanças com branches, issues e pull requests.
+* Tratamento individual de falhas nas consultas.
+* Mecanismos de retry e logging.
+* Parametrização de períodos e ambientes.
+* Ampliação das integrações com APIs NICE.
+* Novas ferramentas de administração e automação.
 
----
+Motivação
 
-**Princípio do BUB:** aplicações separadas, componentes compartilhados e um único lugar para encontrar suas ferramentas NICE.
+O NICE BUB combina conhecimentos de operações NICE CXone com desenvolvimento Python e integração de sistemas.
+
+Além de produzir ferramentas úteis, o projeto funciona como um ambiente de estudo e experimentação de boas práticas de desenvolvimento, arquitetura e automação aplicadas ao ecossistema NICE.
+
+⸻
+
+Projeto pessoal e independente, sem vínculo oficial com a NICE.
