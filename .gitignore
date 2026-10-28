@@ -1,29 +1,19 @@
-# Python packaging
-*.egg-info/
-build/
-dist/
+# Environment variables
+.env
+.env.*
 
-# Virtual environment
+# Virtual environments
 .venv/
+venv/
 
 # Python cache
 __pycache__/
+*.py[cod]
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
 
-# Environments
-.env
-.envrc
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# SkillReport - Ignore input/output files
-/apps/skillReport/data/input/*
-/apps/skillReport/data/output/*
-
-# Keep directory structure
-!/apps/skillReport/data/input/.gitkeep
-!/apps/skillReport/data/output/.gitkeep
+# Python build
+build/
+dist/
+*.egg-info/
